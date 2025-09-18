@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  billingStatus String    @default("trial")
+  plan          String    @default("developer")
+  limits        Json      @default("{}")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  projects      Project[]
+  users         User[]
+  tokens        Token[]
+  runners       Runner[]
+  usage         Usage[]
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  name           String
+  role           String    @default("member")
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  tokens         Token[]
+  builds         Build[]
+}
+
+model Project {
+  id                    String    @id @default(uuid())
+  name                  String
+  organizationId        String
+  region                String    @default("us-east")
+  builderSize           Json      @default("{\"cpus\": 16, \"memoryGB\": 32}")
+  cacheStorageTargetGB  Json      @default("{\"x86_64\": 50, \"arm64\": 50}")
+  cacheRetentionDays    Int       @default(14)
+  buildTimeoutMinutes   Int       @default(60)
+  autoscalingEnabled    Boolean   @default(false)
+  autoscalingThresholds Json      @default("{}")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  builds          Build[]
+  caches          Cache[]
+  tokens          Token[]
+  trustRelations  TrustRelation[]
+
+  @@unique([organizationId, name])
+}
+
+model Build {
+  id                String    @id @default(uuid())
+  projectId         String
+  userId            String?
+  status            String    @default("pending")
+  duration          Int?
+  cacheSavedSeconds Int       @default(0)
+  platforms         String[]
+  imageTags         String[]
+  builderArch       String
+  logsUrl           String?
+  trace             Json?
+  startedAt         DateTime?
+  endedAt           DateTime?
+  error             String?
+  cacheHitRate      Float     @default(0)
+  billableMinutes   Float     @default(0)
+  createdAt         DateTime  @default(now())
+
+  project         Project   @relation(fields: [projectId], references: [id])
+  user            User?     @relation(fields: [userId], references: [id])
+  cacheEntries    CacheEntry[]
+}
+
+model Cache {
+  id            String    @id @default(uuid())
+  projectId     String
+  architecture  String
+  sizeGB        Float     @default(0)
+  lastUsedAt    DateTime  @default(now())
+  hitRate       Float     @default(0)
+  evictionPolicy String   @default("lru")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       Project      @relation(fields: [projectId], references: [id])
+  entries       CacheEntry[]
+
+  @@unique([projectId, architecture])
+}
+
+model CacheEntry {
+  id          String    @id @default(uuid())
+  cacheId     String
+  buildId     String?
+  key         String
+  digest      String
+  sizeBytes   BigInt
+  command     String?
+  lastUsedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  cache       Cache     @relation(fields: [cacheId], references: [id])
+  build       Build?    @relation(fields: [buildId], references: [id])
+
+  @@index([key, digest])
+}
+
+model Token {
+  id             String    @id @default(uuid())
+  name           String
+  token          String    @unique
+  type           String
+  scope          String
+  permissions    String[]
+  organizationId String?
+  projectId      String?
+  userId         String?
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  project        Project?      @relation(fields: [projectId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
+}
+
+model TrustRelation {
+  id          String    @id @default(uuid())
+  projectId   String
+  entityType  String
+  entityId    String
+  permissions String[]
+  createdAt   DateTime  @default(now())
+
+  project     Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, entityType, entityId])
+}
+
+model Runner {
+  id             String    @id @default(uuid())
+  name           String
+  organizationId String
+  labels         String[]
+  hostType       String    @default("managed")
+  cpus           Int       @default(4)
+  memoryGB       Int       @default(16)
+  cacheSizeGB    Int       @default(100)
+  status         String    @default("idle")
+  lastSeenAt     DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  jobs           RunnerJob[]
+}
+
+model RunnerJob {
+  id          String    @id @default(uuid())
+  runnerId    String
+  repository  String
+  workflow    String
+  job         String
+  status      String    @default("queued")
+  startedAt   DateTime?
+  endedAt     DateTime?
+  duration    Int?
+  exitCode    Int?
+  createdAt   DateTime  @default(now())
+
+  runner      Runner    @relation(fields: [runnerId], references: [id])
+}
+
+model Usage {
+  id                    String    @id @default(uuid())
+  organizationId        String
+  date                  DateTime  @db.Date
+  containerBuildsMinutes Float    @default(0)
+  githubActionsMinutes   Float    @default(0)
+  storageGB             Float    @default(0)
+  agentSandboxMinutes   Float    @default(0)
+  createdAt             DateTime  @default(now())
+
+  organization          Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, date])
+}

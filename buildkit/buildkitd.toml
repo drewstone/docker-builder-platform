@@ -1,0 +1,27 @@
+# BuildKit daemon configuration
+
+[grpc]
+  address = ["tcp://0.0.0.0:8080"]
+
+[worker.oci]
+  enabled = true
+  platforms = ["linux/amd64", "linux/arm64"]
+  snapshotter = "overlayfs"
+
+[worker.containerd]
+  enabled = false
+
+[registry."docker.io"]
+  mirrors = ["mirror.gcr.io"]
+
+[registry."localhost:5000"]
+  http = true
+  insecure = true
+
+[cache]
+  # Enable cache import/export
+  enabled = true
+
+[log]
+  level = "info"
+  format = "json"
