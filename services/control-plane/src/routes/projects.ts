@@ -244,12 +244,12 @@ const projectRoutes: FastifyPluginAsync = async (server) => {
 
     const stats = {
       totalBuilds: builds.length,
-      successfulBuilds: builds.filter(b => b.status === 'success').length,
-      failedBuilds: builds.filter(b => b.status === 'error').length,
-      totalBuildMinutes: builds.reduce((sum, b) => sum + (b.duration || 0) / 60, 0),
-      cacheSavedMinutes: builds.reduce((sum, b) => sum + b.cacheSavedSeconds / 60, 0),
-      averageCacheHitRate: builds.reduce((sum, b) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1),
-      billableMinutes: builds.reduce((sum, b) => sum + b.billableMinutes, 0)
+      successfulBuilds: builds.filter((b: any) => b.status === 'success').length,
+      failedBuilds: builds.filter((b: any) => b.status === 'error').length,
+      totalBuildMinutes: builds.reduce((sum: number, b: any) => sum + (b.duration || 0) / 60, 0),
+      cacheSavedMinutes: builds.reduce((sum: number, b: any) => sum + b.cacheSavedSeconds / 60, 0),
+      averageCacheHitRate: builds.reduce((sum: number, b: any) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1),
+      billableMinutes: builds.reduce((sum: number, b: any) => sum + b.billableMinutes, 0)
     };
 
     return reply.send(stats);

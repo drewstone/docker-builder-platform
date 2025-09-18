@@ -14,11 +14,11 @@ interface BuildResult {
 export async function streamLogs(
   api: ApiClient,
   buildId: string,
-  options: { progress?: string } = {}
+  _options: { progress?: string } = {}
 ): Promise<BuildResult> {
-  return new Promise(async (resolve, reject) => {
-    let checkInterval: NodeJS.Timer;
-    let logBuffer = '';
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line prefer-const
+    let checkInterval: NodeJS.Timeout;
     let lastLogPosition = 0;
 
     const checkBuildStatus = async () => {
@@ -29,7 +29,7 @@ export async function streamLogs(
           const logs = await api.getBuildLogs(buildId);
           if (logs && logs.length > lastLogPosition) {
             const newLogs = logs.substring(lastLogPosition);
-            process.stdout.write(formatLogs(newLogs, options.progress));
+            process.stdout.write(formatLogs(newLogs));
             lastLogPosition = logs.length;
           }
         }
@@ -40,7 +40,7 @@ export async function streamLogs(
           const logs = await api.getBuildLogs(buildId);
           if (logs && logs.length > lastLogPosition) {
             const newLogs = logs.substring(lastLogPosition);
-            process.stdout.write(formatLogs(newLogs, options.progress));
+            process.stdout.write(formatLogs(newLogs));
           }
 
           resolve({
@@ -60,11 +60,11 @@ export async function streamLogs(
     };
 
     checkInterval = setInterval(checkBuildStatus, 1000);
-    await checkBuildStatus();
+    checkBuildStatus();
   });
 }
 
-function formatLogs(logs: string, progressType?: string): string {
+function formatLogs(logs: string): string {
   const lines = logs.split('\n');
   const formatted = lines.map(line => {
     if (line.includes('[CACHED]')) {

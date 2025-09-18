@@ -1,7 +1,7 @@
 import * as tar from 'tar-stream';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { createWriteStream, createReadStream } from 'fs';
+import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { createGzip } from 'zlib';
 

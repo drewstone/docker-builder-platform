@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger';
-import { BuilderNode, BuilderConfig, BuildResult } from '../types';
+import { BuilderNode, BuildResult } from '../types';
 import { config } from '../config';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -40,7 +40,7 @@ export class BuilderManager {
           await this.handleBuildAssignment(builderId, JSON.parse(message));
         } else if (channel.includes(':complete')) {
           const builderId = channel.split(':')[1];
-          await this.handleBuildComplete(builderId, JSON.parse(message));
+          await this.handleBuildComplete(builderId);
         }
       } catch (error) {
         logger.error({ error, channel, message }, 'Error handling builder event');
@@ -91,7 +91,7 @@ export class BuilderManager {
   }
 
   private async executeBuild(builderId: string, buildConfig: any) {
-    const { buildId, projectId, dockerfile, context, platforms, tags, buildArgs, push } = buildConfig;
+    const { buildId, projectId } = buildConfig;
 
     await this.prisma.build.update({
       where: { id: buildId },
@@ -124,7 +124,7 @@ export class BuilderManager {
     this.buildProcesses.set(buildId, buildProcess);
 
     try {
-      const { stdout, stderr } = await buildProcess;
+      const { stdout } = await buildProcess;
 
       const duration = Math.round((Date.now() - startTime) / 1000);
 
@@ -277,7 +277,7 @@ export class BuilderManager {
     });
   }
 
-  private async handleBuildComplete(builderId: string, result: any) {
+  private async handleBuildComplete(builderId: string) {
     const builder = this.builders.get(builderId);
     if (builder) {
       builder.currentBuilds = Math.max(0, builder.currentBuilds - 1);

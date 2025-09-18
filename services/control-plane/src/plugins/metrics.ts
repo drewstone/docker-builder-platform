@@ -56,7 +56,7 @@ export const metricsPlugin: FastifyPluginAsync = fp(
       cacheHitRate
     });
 
-    fastify.addHook('onRequest', async (request, reply) => {
+    fastify.addHook('onRequest', async (request, _reply) => {
       (request as any).startTime = Date.now();
     });
 
@@ -73,7 +73,7 @@ export const metricsPlugin: FastifyPluginAsync = fp(
         .inc();
     });
 
-    fastify.get('/metrics', async (request, reply) => {
+    fastify.get('/metrics', async (_request, reply) => {
       reply.type('text/plain');
       return register.metrics();
     });

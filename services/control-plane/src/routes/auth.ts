@@ -1,6 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
 import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 import { LoginSchema, RegisterSchema } from '../types';
 
 const authRoutes: FastifyPluginAsync = async (server) => {
@@ -207,7 +206,7 @@ const authRoutes: FastifyPluginAsync = async (server) => {
 
   server.post('/logout', {
     preHandler: server.authenticate
-  }, async (request, reply) => {
+  }, async (_, reply) => {
     return reply.send({ success: true });
   });
 };

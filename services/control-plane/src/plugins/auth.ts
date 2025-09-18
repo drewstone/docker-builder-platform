@@ -12,21 +12,13 @@ declare module 'fastify' {
     builderManager: any;
     cacheManager: any;
   }
-  interface FastifyRequest {
-    user?: {
-      userId: string;
-      organizationId: string;
-      role: string;
-    };
-  }
 }
 
-export const authPlugin: FastifyPluginAsync<{ prisma: PrismaClient; redis: Redis }> = fp(
-  async (fastify, opts) => {
+const authPluginImpl: FastifyPluginAsync<{ prisma: PrismaClient; redis: Redis }> = async (fastify, opts) => {
     fastify.decorate('authenticate', async function (
       request: FastifyRequest,
       reply: FastifyReply
-    ) {
+    ): Promise<void> {
       try {
         const authorization = request.headers.authorization;
 
@@ -64,18 +56,16 @@ export const authPlugin: FastifyPluginAsync<{ prisma: PrismaClient; redis: Redis
             data: { lastUsedAt: new Date() }
           });
 
-          request.user = {
+          (request as any).user = {
             userId: dbToken.userId || '',
             organizationId: dbToken.organizationId || '',
             role: 'admin'
           };
-
-          return;
         }
 
         try {
           const decoded = await fastify.jwt.verify(token);
-          request.user = decoded as any;
+          (request as any).user = decoded;
         } catch (err) {
           return reply.code(401).send({ error: 'Invalid token' });
         }
@@ -84,6 +74,6 @@ export const authPlugin: FastifyPluginAsync<{ prisma: PrismaClient; redis: Redis
         return reply.code(500).send({ error: 'Authentication error' });
       }
     });
-  },
-  { name: 'auth-plugin' }
-);
+};
+
+export const authPlugin = fp(authPluginImpl, { name: 'auth-plugin' });

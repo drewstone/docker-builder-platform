@@ -78,7 +78,7 @@ export async function loginCommand(options: any) {
           console.log(chalk.yellow('\n⚠ No projects found.'));
           console.log(chalk.gray('  Create one with: dbp project create <name>'));
         } else if (!config.defaultProject) {
-          const defaultProject = projects.find(p => p.name === 'default') || projects[0];
+          const defaultProject = projects.find((p: any) => p.name === 'default') || projects[0];
           await saveConfig({
             ...config,
             token,

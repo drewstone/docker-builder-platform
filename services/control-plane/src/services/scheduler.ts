@@ -100,7 +100,7 @@ export class SchedulerService {
   private async findAvailableBuilder(request: BuildRequest): Promise<BuilderNode | null> {
     const requiredArch = this.selectArchitecture(request.platforms);
 
-    for (const [id, node] of this.builderNodes) {
+    for (const [, node] of this.builderNodes) {
       if (node.architecture === requiredArch &&
           node.status === 'ready' &&
           node.currentBuilds < node.maxConcurrency) {
@@ -219,7 +219,7 @@ export class SchedulerService {
       priority += 2;
     }
 
-    const org = this.prisma.organization.findFirst({
+    this.prisma.organization.findFirst({
       where: {
         projects: {
           some: {
@@ -259,7 +259,7 @@ export class SchedulerService {
 
     const newNode: BuilderNode = {
       id: builderId,
-      architecture,
+      architecture: architecture as "x86_64" | "arm64",
       region: config.builders.regions[0],
       status: 'provisioning',
       maxConcurrency: 5,

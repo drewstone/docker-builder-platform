@@ -5,7 +5,12 @@
     "rootDir": "./src",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*"

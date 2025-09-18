@@ -39,8 +39,8 @@ export const projectCommand = {
         console.log(`  Builds: ${project._count.builds}`);
 
         if (project.caches && project.caches.length > 0) {
-          const totalCache = project.caches.reduce((sum, c) => sum + c.sizeGB, 0);
-          const avgHitRate = project.caches.reduce((sum, c) => sum + c.hitRate, 0) / project.caches.length;
+          const totalCache = project.caches.reduce((sum: number, c: any) => sum + c.sizeGB, 0);
+          const avgHitRate = project.caches.reduce((sum: number, c: any) => sum + c.hitRate, 0) / project.caches.length;
           console.log(`  Cache: ${totalCache.toFixed(1)} GB (${(avgHitRate * 100).toFixed(0)}% hit rate)`);
         }
       }

@@ -2,9 +2,6 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
-import tar from 'tar-stream';
-import { createReadStream } from 'fs';
-import { pipeline } from 'stream/promises';
 import { ApiClient } from '../utils/api';
 import { getConfig } from '../utils/config';
 import { streamLogs } from '../utils/logs';
@@ -122,7 +119,7 @@ export async function buildCommand(context: string, options: any) {
       load: options.load
     };
 
-    const { buildId, status, estimatedWaitSeconds } = await api.createBuild(buildRequest);
+    const { buildId, estimatedWaitSeconds } = await api.createBuild(buildRequest);
 
     spinner.succeed(`Build scheduled: ${chalk.cyan(buildId)}`);
 

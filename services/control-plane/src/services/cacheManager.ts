@@ -1,9 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
-import { v4 as uuidv4 } from 'uuid';
 import * as Minio from 'minio';
 import { logger } from '../utils/logger';
-import { CacheEntry, CacheStats, CachePolicy } from '../types';
+import { CacheEntry, CacheStats } from '../types';
 import { config } from '../config';
 
 export class CacheManager {
@@ -193,7 +192,7 @@ export class CacheManager {
     };
 
     for (const cache of caches) {
-      const sizeGB = Number(cache.entries.reduce((sum, e) => sum + e.sizeBytes, 0n)) / (1024 ** 3);
+      const sizeGB = Number(cache.entries.reduce((sum: bigint, e: any) => sum + e.sizeBytes, 0n)) / (1024 ** 3);
 
       stats.architectures[cache.architecture] = {
         sizeGB,
@@ -207,7 +206,7 @@ export class CacheManager {
     }
 
     stats.hitRate = caches.length > 0
-      ? caches.reduce((sum, c) => sum + c.hitRate, 0) / caches.length
+      ? caches.reduce((sum: number, c: any) => sum + c.hitRate, 0) / caches.length
       : 0;
 
     return stats;
@@ -233,7 +232,7 @@ export class CacheManager {
         orderBy: { lastUsedAt: 'asc' }
       });
 
-      let currentSize = Number(entries.reduce((sum, e) => sum + e.sizeBytes, 0n)) / (1024 ** 3);
+      let currentSize = Number(entries.reduce((sum: bigint, e: any) => sum + e.sizeBytes, 0n)) / (1024 ** 3);
 
       for (const entry of entries) {
         if (currentSize <= target) break;
@@ -360,7 +359,7 @@ export class CacheManager {
 
   private async updateStats() {
     for (const [cacheId, stats] of this.cacheStats) {
-      if (stats.hits + stats.misses > 0) {
+      if (stats.hits !== undefined && stats.misses !== undefined && stats.hits + stats.misses > 0) {
         const hitRate = stats.hits / (stats.hits + stats.misses);
 
         await this.prisma.cache.update({
@@ -387,7 +386,7 @@ export class CacheManager {
       select: { sizeBytes: true }
     });
 
-    const totalBytes = entries.reduce((sum, e) => sum + Number(e.sizeBytes), 0);
+    const totalBytes = entries.reduce((sum: number, e: any) => sum + Number(e.sizeBytes), 0);
     const sizeGB = totalBytes / (1024 ** 3);
 
     await this.prisma.cache.update({
@@ -403,14 +402,14 @@ export class CacheManager {
 
   private incrementHit(cacheId: string) {
     const stats = this.cacheStats.get(cacheId);
-    if (stats) {
+    if (stats && stats.hits !== undefined) {
       stats.hits++;
     }
   }
 
   private incrementMiss(cacheId: string) {
     const stats = this.cacheStats.get(cacheId);
-    if (stats) {
+    if (stats && stats.misses !== undefined) {
       stats.misses++;
     }
   }

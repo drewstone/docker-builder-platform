@@ -22,10 +22,11 @@ export async function statusCommand() {
     if (health.services) {
       console.log(chalk.bold('\nServices:'));
       for (const [service, status] of Object.entries(health.services)) {
-        const icon = status === 'connected' || status.includes('ready')
+        const statusStr = String(status);
+        const icon = statusStr === 'connected' || statusStr.includes('ready')
           ? chalk.green('✓')
           : chalk.red('✗');
-        console.log(`${icon} ${service}: ${status}`);
+        console.log(`${icon} ${service}: ${statusStr}`);
       }
     }
 

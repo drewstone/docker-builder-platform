@@ -35,11 +35,12 @@ export const cacheCommand = {
       if (Object.keys(stats.architectures).length > 0) {
         console.log(chalk.bold('\nBy Architecture:'));
         for (const [arch, archStats] of Object.entries(stats.architectures)) {
+          const as: any = archStats;
           console.log(`\n${chalk.cyan(arch)}:`);
-          console.log(`  Size: ${archStats.sizeGB.toFixed(2)} GB`);
-          console.log(`  Entries: ${archStats.entryCount}`);
-          console.log(`  Hit rate: ${(archStats.hitRate * 100).toFixed(1)}%`);
-          console.log(`  Last used: ${new Date(archStats.lastUsed).toLocaleString()}`);
+          console.log(`  Size: ${as.sizeGB.toFixed(2)} GB`);
+          console.log(`  Entries: ${as.entryCount}`);
+          console.log(`  Hit rate: ${(as.hitRate * 100).toFixed(1)}%`);
+          console.log(`  Last used: ${new Date(as.lastUsed).toLocaleString()}`);
         }
       }
 

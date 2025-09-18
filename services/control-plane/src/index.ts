@@ -22,7 +22,7 @@ const prisma = new PrismaClient();
 const redis = new Redis(config.redis);
 
 export const server = fastify({
-  logger: logger,
+  logger: true,
   requestIdLogLabel: 'requestId',
   disableRequestLogging: false,
   trustProxy: true

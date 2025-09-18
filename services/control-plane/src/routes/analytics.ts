@@ -42,10 +42,10 @@ const analyticsRoutes: FastifyPluginAsync = async (server) => {
 
     const stats = {
       totalBuilds: builds.length,
-      successRate: builds.filter(b => b.status === 'success').length / Math.max(builds.length, 1),
-      totalBuildMinutes: builds.reduce((sum, b) => sum + (b.duration || 0) / 60, 0),
-      cacheSavedMinutes: builds.reduce((sum, b) => sum + b.cacheSavedSeconds / 60, 0),
-      averageCacheHitRate: builds.reduce((sum, b) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1),
+      successRate: builds.filter((b: any) => b.status === 'success').length / Math.max(builds.length, 1),
+      totalBuildMinutes: builds.reduce((sum: number, b: any) => sum + (b.duration || 0) / 60, 0),
+      cacheSavedMinutes: builds.reduce((sum: number, b: any) => sum + b.cacheSavedSeconds / 60, 0),
+      averageCacheHitRate: builds.reduce((sum: number, b: any) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1),
       dailyUsage: usage
     };
 
@@ -133,10 +133,10 @@ const analyticsRoutes: FastifyPluginAsync = async (server) => {
       days: Object.values(dailyStats),
       summary: {
         totalBuilds: builds.length,
-        successRate: builds.filter(b => b.status === 'success').length / Math.max(builds.length, 1),
-        totalMinutes: builds.reduce((sum, b) => sum + (b.duration || 0) / 60, 0),
-        savedMinutes: builds.reduce((sum, b) => sum + b.cacheSavedSeconds / 60, 0),
-        averageCacheHitRate: builds.reduce((sum, b) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1)
+        successRate: builds.filter((b: any) => b.status === 'success').length / Math.max(builds.length, 1),
+        totalMinutes: builds.reduce((sum: number, b: any) => sum + (b.duration || 0) / 60, 0),
+        savedMinutes: builds.reduce((sum: number, b: any) => sum + b.cacheSavedSeconds / 60, 0),
+        averageCacheHitRate: builds.reduce((sum: number, b: any) => sum + b.cacheHitRate, 0) / Math.max(builds.length, 1)
       }
     });
   });
